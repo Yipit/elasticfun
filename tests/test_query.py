@@ -13,21 +13,10 @@ def test_query_all():
 
 def test_empty_query():
     # When I query for nothing
-    querystr = str(Query(_empty=True))
+    querystr = str(Query.empty())
 
     # Then I see that this query object won't return anything just yet
     querystr.should.be.empty
-
-
-def test_empty_query_should_blowup_with_fields_or_query():
-    # When I query for nothing
-    Query.when.called_with('blah', _empty=True).should.throw(
-        ParsingException,
-        'You cannot pass fields or words to empty queries')
-
-    Query.when.called_with(field='blah', _empty=True).should.throw(
-        ParsingException,
-        'You cannot pass fields or words to empty queries')
 
 
 def test_mixing_words_and_fields():

@@ -9,7 +9,6 @@ class Query(object):
     def __init__(self, query=None, **kwargs):
 
         # Reading the special parameters
-        self.empty = kwargs.pop('_empty', None)
         self.boost = kwargs.pop('_boost', None)
 
         # After cleaning up the kwargs we'll have just the plain field
@@ -39,35 +38,39 @@ class Query(object):
             ).format(fields_str)
             raise ParsingException(msg)
 
-        # Empty queries should NOT have fields or queries
-        if self.empty and (field or query):
-            raise ParsingException(
-                'You cannot pass fields or words to empty queries')
-
         self.query = query
         self.field = field
-        self.evaluated = False
-        self.cache = None
+
+        # Attributes that controls the begining of a chain
+        self._empty = False
+        self._evaluated = False
+        self._cache = None
+
+    @staticmethod
+    def empty():
+        query = Query()
+        query._empty = True
+        return query
 
     def __str__(self):
-        return self.cache if self.evaluated else self._eval()
+        return self._cache if self._evaluated else self._eval()
 
     def __and__(self, other):
-        if self.empty:
-            self.cache = str(other)
+        if self._empty:
+            self._cache = str(other)
         else:
-            self.cache = '({} AND {})'.format(self, other)
-        self.evaluated = True
-        self.empty = False
+            self._cache = '({} AND {})'.format(self, other)
+        self._evaluated = True
+        self._empty = False
         return self
 
     def __or__(self, other):
-        if self.empty:
-            self.cache = str(other)
+        if self._empty:
+            self._cache = str(other)
         else:
-            self.cache = '({} OR {})'.format(self, other)
-        self.evaluated = True
-        self.empty = False
+            self._cache = '({} OR {})'.format(self, other)
+        self._evaluated = True
+        self._empty = False
         return self
 
     def _cast(self, val):
@@ -77,7 +80,7 @@ class Query(object):
 
     def _eval(self):
         # This query is empty, let's return nothing
-        if self.empty:
+        if self._empty:
             return ''
 
         # No specific query was received, let's return everything
@@ -105,7 +108,7 @@ class Query(object):
             return result
         else:
             # If we have more values to handle, we'll use some recursion
-            subquery = Query(_empty=True)
+            subquery = Query.empty()
             for subvalue in subvalues:
                 subquery &= Query(self._cast(subvalue))
 
