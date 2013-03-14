@@ -112,3 +112,21 @@ def test_searching_with_query_objects(pyelasticsearch, settings):
     # string containing the evaluated query
     pyelasticsearch.ElasticSearch.return_value.search.assert_called_once_with(
         '("ice" AND "cream")', index='default')
+
+
+@patch('elasticfun.django.settings')
+@patch('elasticfun.django.pyelasticsearch')
+def test_searching_with_dicts(pyelasticsearch, settings):
+    settings.ELASTICFUN_CONNECTIONS = {
+        'default': {'URL': 'http://localhost:9200'}}
+
+    # Given that I have a query dict
+    query = {'query': {'filtered': {'query': {'query_string': 'stuff'}}}}
+
+    # When I pass this query to the search function
+    elasticfun.search(query)
+
+    # Then I see that the pyelasticsearch function was called with a
+    # string containing the evaluated query
+    pyelasticsearch.ElasticSearch.return_value.search.assert_called_once_with(
+        query, index='default')

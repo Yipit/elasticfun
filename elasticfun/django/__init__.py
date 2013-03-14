@@ -2,6 +2,7 @@ import pyelasticsearch
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
+from .. import Query
 
 __all__ = 'elasticfun',
 
@@ -32,6 +33,7 @@ class ElasticFun(object):
         # Calling the backend search method
         esurl = self.conf.connections[index]['URL']
         esinst = pyelasticsearch.ElasticSearch(esurl)
-        return esinst.search(str(query), index=index)
+        query = isinstance(query, Query) and str(query) or query
+        return esinst.search(query, index=index)
 
 elasticfun = ElasticFun()
