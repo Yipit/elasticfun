@@ -75,5 +75,5 @@ If you're willing to send a patch to our humble project, please ensure
 that the coverage won't decrease at all.
 
 Also, I strongly suggest you to start your proposed feature or bug fix
-by writing the tests. It will certainly decrease the complexibility of
-the actual and thus improve it's quality.
+by writing the tests. It will certainly decrease the complexity of the
+actual and thus improve it's quality.
