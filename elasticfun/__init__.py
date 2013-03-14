@@ -113,9 +113,8 @@ class Query(object):
                 return '{} {}^{}'.format(result, *self.boost)
             return result
         else:
-            # If we have more values to handle, we'll use some recursion
-            subquery = Query.empty()
-            for subvalue in subvalues:
-                subquery &= Query(self._cast(subvalue))
+            subquery = val
+            if not isinstance(val, Query):
+                subquery = '"{}"'.format(val)
 
         return '{}{}'.format(field, subquery)

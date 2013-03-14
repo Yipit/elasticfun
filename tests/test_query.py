@@ -87,13 +87,13 @@ def test_query_with_or():
     str(query).should.equal('(ice OR cream)')
 
 
-def test_query_with_implicit_and():
+def test_query_with_two_words():
     # When I filter by two words in the same filter
     query = Query('ice cream')
 
     # Then I see that the right query was created with an AND separating
     # the two words
-    str(query).should.equal('(ice AND cream)')
+    str(query).should.equal('"ice cream"')
 
 
 def test_query_with_field_and():
@@ -102,7 +102,25 @@ def test_query_with_field_and():
 
     # Then I see that the value of the field that contaiend two words
     # was evaluated to an expression
+    str(query).should.equal('brand:"ice cream"')
+
+
+def test_query_with_field_two_words_and():
+    # When I filter by field with more than one value
+    query = Query(brand=(Query('ice') & Query('cream')))
+
+    # Then I see that the value of the field that contaiend two words
+    # was evaluated to an expression
     str(query).should.equal('brand:(ice AND cream)')
+
+
+def test_query_with_field_two_words_or():
+    # When I filter by field with more than one value
+    query = Query(brand=(Query('ice') | Query('cream')))
+
+    # Then I see that the value of the field that contaiend two words
+    # was evaluated to an expression
+    str(query).should.equal('brand:(ice OR cream)')
 
 
 def test_query_add_boost():

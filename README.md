@@ -22,6 +22,32 @@ for elasticsearch. The following snippet demonstrates how it works:
 '(fitness AND (category:Accessories OR category:(Sport AND Wear)))')
 ```
 
+### Search words on query objects
+
+The main constructor of the `Query` object receives only one expression
+at once, which means that if you need to combine different words/fields
+to build your query, you will have to use different instances of this
+object. Which means that this:
+
+```python
+>>> str(Query('ice cream'))
+'"ice cream"'
+```
+
+Is completely different from this:
+
+```python
+>>> str(Query('ice') & Query('cream'))
+'(ice AND cream)'
+```
+
+And completely different from this:
+
+```python
+>>> str(Query('ice') | Query('cream'))
+'(ice OR cream)'
+```
+
 ## Test coverage
 
 The very first line of this library was a unit-test, it was completely
