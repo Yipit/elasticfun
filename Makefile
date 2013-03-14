@@ -1,5 +1,5 @@
 test:
-	nosetests --with-coverage --cover-package=elasticfun --verbosity=2 -s tests
+	nosetests --stop --with-coverage --cover-package=elasticfun --verbosity=2 -s tests
 
 deps:
 	pip install -r requirements.txt
