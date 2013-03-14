@@ -1,7 +1,7 @@
 test:
 	nosetests --with-coverage --cover-package=elasticfun --verbosity=2 -s tests
 
-install:
+deps:
 	pip install -r requirements.txt
 
 clean:
