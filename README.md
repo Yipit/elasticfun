@@ -48,6 +48,25 @@ And completely different from this:
 '(ice OR cream)'
 ```
 
+### Building a query from user input
+
+The above API is meant to be used by programmers to build queries
+dynamically through code. But as we know, a very common case for a query
+builder object is to receive user input e.g. from a search box.
+
+```python
+>>> Query.from_user_input('ice cream')
+'(ice AND cream)'
+```
+
+But, also you can change the default operator for the same operation to
+get a result like this:
+
+```python
+>>> Query.from_user_input('ice scream', default_operator='OR')
+'(ice OR cream)'
+```
+
 ## Test coverage
 
 The very first line of this library was a unit-test, it was completely
