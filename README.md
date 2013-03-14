@@ -17,9 +17,10 @@ This API aims to give you a pleasant way to build even complex queries
 for elasticsearch. The following snippet demonstrates how it works:
 
 ```python
+>>> from elasticfun import Query
 >>> query = (Query('fitness') & (Query(category='Accessories') | Query(category='Sport Wear')))
 >>> str(query)
-'(fitness AND (category:Accessories OR category:(Sport AND Wear)))')
+'("fitness" AND (category:"Accessories" OR category:"Sport Wear"))'
 ```
 
 ### Search words on query objects
@@ -30,6 +31,7 @@ to build your query, you will have to use different instances of this
 object. Which means that this:
 
 ```python
+>>> from elasticfun import Query
 >>> str(Query('ice cream'))
 '"ice cream"'
 ```
@@ -37,15 +39,17 @@ object. Which means that this:
 Is completely different from this:
 
 ```python
+>>> from elasticfun import Query
 >>> str(Query('ice') & Query('cream'))
-'(ice AND cream)'
+'("ice" AND "cream")'
 ```
 
 And completely different from this:
 
 ```python
+>>> from elasticfun import Query
 >>> str(Query('ice') | Query('cream'))
-'(ice OR cream)'
+'("ice" OR "cream")'
 ```
 
 ### Building a query from user input
@@ -55,16 +59,18 @@ dynamically through code. But as we know, a very common case for a query
 builder object is to receive user input e.g. from a search box.
 
 ```python
+>>> from elasticfun import Query
 >>> Query.from_user_input('ice cream')
-'(ice AND cream)'
+'("ice" AND "cream")'
 ```
 
 But, also you can change the default operator for the same operation to
 get a result like this:
 
 ```python
+>>> from elasticfun import Query
 >>> Query.from_user_input('ice scream', default_operator='OR')
-'(ice OR cream)'
+'("ice" OR "cream")'
 ```
 
 ## Test coverage
