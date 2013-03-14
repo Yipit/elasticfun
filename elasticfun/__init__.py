@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 from datetime import datetime
 
-LOOKUPS = ['lte', 'gte', 'lt', 'gt', 'in', 'range']
+LOOKUPS = ['lte', 'gte', 'lt', 'gt', 'in', 'range', 'startswith', 'endswith']
 LOOKUP_OPS = {'in': 'OR', 'range': 'TO'}
 
 
@@ -87,17 +87,6 @@ class Query(object):
         self._evaluated = True
         return self
 
-    def _cast(self, val, lookup=None):
-        if isinstance(val, datetime):
-            return '"{}"'.format(val.isoformat())
-        if isinstance(val, (list, set)):
-            op = ' {} '.format(lookup and LOOKUP_OPS.get(lookup) or 'OR')
-            return op.join(map(self._cast, val))
-        if isinstance(val, Query):
-            return str(val)
-        # if the
-        return '"{}"'.format(str(val))
-
     def _process_field(self, field):
 
         field, val = field.items()[0]
@@ -112,6 +101,22 @@ class Query(object):
                 raise ParsingException(msg)
         return field, lookup, val
 
+    def _cast(self, val, lookup=None):
+        if isinstance(val, datetime):
+            return '"{}"'.format(val.isoformat())
+        if isinstance(val, (list, set)):
+            op = ' {} '.format(lookup and LOOKUP_OPS.get(lookup) or 'OR')
+            return op.join(map(self._cast, val))
+        if isinstance(val, Query):
+            return str(val)
+
+        if lookup == 'startswith':
+            val = '{}*'.format(val)
+        elif lookup == 'endswith':
+            val = '*{}'.format(val)
+
+        return '"{}"'.format(str(val))
+
     def _process_lookup(self, lookup, value):
 
         if lookup == 'lte':
@@ -122,7 +127,7 @@ class Query(object):
             value = '{{* TO {}}}'.format(value)
         elif lookup == 'gt':
             value = '{{{} TO *}}'.format(value)
-        elif lookup == 'in':
+        elif lookup in ['in', 'range']:
             # In this case the logic to handle in iterables
             # is in the cast method
             pass

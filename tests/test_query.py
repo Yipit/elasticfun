@@ -225,3 +225,19 @@ def test_query_with_range_lookup():
 
     # Then I see the field queried over a reduced values of the list of datetimes converted to strings
     str(query).should.equal('pub_date:("2013-03-13T01:32:00" TO "2013-03-14T01:00:00")')
+
+
+def test_query_with_startswith_lookup():
+    # When I filter a startswith lookup
+    query = Query(title__startswith='cream')
+
+    # Then I see the field queried with the value appended with a wildcard
+    str(query).should.equal('title:("cream*")')
+
+
+def test_query_with_endswith_lookup():
+    # When I filter a endwith lookup
+    query = Query(title__endswith='cream')
+
+    # Then I see the field queried with the value prepended with a wildcard
+    str(query).should.equal('title:("*cream")')
