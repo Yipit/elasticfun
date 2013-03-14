@@ -1,4 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from datetime import datetime
+
+LOOKUPS = ['lte', 'gte', 'lt', 'gt', 'in', 'range']
+LOOKUP_OPS = {'in': 'OR', 'range': 'TO'}
 
 
 class ParsingException(ValueError):
@@ -38,10 +44,12 @@ class Query(object):
             ).format(fields_str)
             raise ParsingException(msg)
 
-        self.query = query
-        self.field = field
+        self.field, self.lookup, self.query = None, None, query
+        # The user wants to query by a specific field
+        if field:
+            self.field, self.lookup, self.query = self._process_field(field)
 
-        # Attributes that controls the begining of a chain
+        # Attributes that controls the beginning of a chain
         self._empty = False
         self._evaluated = False
         self._cache = None
@@ -79,10 +87,46 @@ class Query(object):
         self._evaluated = True
         return self
 
-    def _cast(self, val):
+    def _cast(self, val, lookup=None):
         if isinstance(val, datetime):
-            return val.isoformat()
-        return str(val)
+            return '"{}"'.format(val.isoformat())
+        if isinstance(val, (list, set)):
+            op = ' {} '.format(lookup and LOOKUP_OPS.get(lookup) or 'OR')
+            return op.join(map(self._cast, val))
+        if isinstance(val, Query):
+            return str(val)
+        # if the
+        return '"{}"'.format(str(val))
+
+    def _process_field(self, field):
+
+        field, val = field.items()[0]
+        lookup = None
+        if '__' in field:
+            field, lookup = field.rsplit('__', 1)
+            if not lookup in LOOKUPS:
+                msg = (
+                    "This is not a valid lookup argument."
+                    "The valid lookups are: {}"
+                ).format(', '.join(LOOKUPS))
+                raise ParsingException(msg)
+        return field, lookup, val
+
+    def _process_lookup(self, lookup, value):
+
+        if lookup == 'lte':
+            value = '[* TO {}]'.format(value)
+        elif lookup == 'gte':
+            value = '[{} TO *]'.format(value)
+        elif lookup == 'lt':
+            value = '{{* TO {}}}'.format(value)
+        elif lookup == 'gt':
+            value = '{{{} TO *}}'.format(value)
+        elif lookup == 'in':
+            # In this case the logic to handle in iterables
+            # is in the cast method
+            pass
+        return '({})'.format(value)
 
     def _eval(self):
         # This query is empty, let's return nothing
@@ -93,28 +137,21 @@ class Query(object):
         if not self.field and not self.query:
             return '*:*'
 
-        # The user wants to query by a specific field
+        # Start out with a blank field, and the query specified
+        field, val = '', self.query
+        # If a field was specified add appropriate formatting
         if self.field:
-            field, val = self.field.items()[0]
-            field = '{}:'.format(field)
-        else:
-            field, val = '', self.query
+            field = '{}:'.format(self.field)
 
-        # Taking care of values with spaces
-        subvalues = self._cast(val).split(' ')
-        if len(subvalues) == 1:
-            # If we only have one case, it's time to return with the
-            # right value
-            val = subvalues[0]
-            result = field + self._cast(val)
+        val = self._cast(val, lookup=self.lookup)
 
-            # If the user needs to boost any fields!
-            if self.boost:
-                return '{} {}^{}'.format(result, *self.boost)
-            return result
-        else:
-            subquery = val
-            if not isinstance(val, Query):
-                subquery = '"{}"'.format(val)
+        # Update the value with appropriate formatting if there
+        # are any lookups
+        if self.lookup:
+            val = self._process_lookup(self.lookup, val)
 
-        return '{}{}'.format(field, subquery)
+        # If the user needs to boost any fields!
+        if self.boost:
+            val = '{} {}^{}'.format(val, *self.boost)
+
+        return '{}{}'.format(field, val)

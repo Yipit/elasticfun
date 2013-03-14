@@ -42,7 +42,7 @@ def test_query_single_word():
     query = Query('stuff')
 
     # Then I see that the right query was created
-    str(query).should.equal('stuff')
+    str(query).should.equal('"stuff"')
 
 
 def test_query_single_field():
@@ -50,7 +50,7 @@ def test_query_single_field():
     query = Query(brand='blah')
 
     # Then I see that the right query was created
-    str(query).should.equal('brand:blah')
+    str(query).should.equal('brand:"blah"')
 
 
 def test_query_single_boolean_value():
@@ -58,7 +58,7 @@ def test_query_single_boolean_value():
     query = Query(True)
 
     # Then I see that the right query was created
-    str(query).should.equal('True')
+    str(query).should.equal('"True"')
 
 
 def test_query_single_datetime_value():
@@ -67,7 +67,7 @@ def test_query_single_datetime_value():
 
     # Then I see that the right query was created with the date
     # converted to a string in the YYYY-mm-ddTHH:MM:SS format
-    str(query).should.equal('2013-03-13T01:32:00')
+    str(query).should.equal('"2013-03-13T01:32:00"')
 
 
 def test_query_with_and():
@@ -75,7 +75,7 @@ def test_query_with_and():
     query = Query('ice') & Query('cream')
 
     # Then I see that the right query was created with the AND operator
-    str(query).should.equal('(ice AND cream)')
+    str(query).should.equal('("ice" AND "cream")')
 
 
 def test_query_with_or():
@@ -84,7 +84,7 @@ def test_query_with_or():
     query = Query('ice') | Query('cream')
 
     # Then I see that the right query was created
-    str(query).should.equal('(ice OR cream)')
+    str(query).should.equal('("ice" OR "cream")')
 
 
 def test_query_with_two_words():
@@ -111,7 +111,7 @@ def test_query_with_field_two_words_and():
 
     # Then I see that the value of the field that contaiend two words
     # was evaluated to an expression
-    str(query).should.equal('brand:(ice AND cream)')
+    str(query).should.equal('brand:("ice" AND "cream")')
 
 
 def test_query_with_field_two_words_or():
@@ -120,7 +120,7 @@ def test_query_with_field_two_words_or():
 
     # Then I see that the value of the field that contaiend two words
     # was evaluated to an expression
-    str(query).should.equal('brand:(ice OR cream)')
+    str(query).should.equal('brand:("ice" OR "cream")')
 
 
 def test_query_add_boost():
@@ -129,7 +129,7 @@ def test_query_add_boost():
 
     # Then I see that the query contains both, the field and the query
     # boosting
-    str(query).should.equal('stuff field^3')
+    str(query).should.equal('"stuff" field^3')
 
 
 def test_query_with_not():
@@ -137,4 +137,91 @@ def test_query_with_not():
     query = ~Query('ice')
 
     # Then I see that the value is prepended with a NOT
-    str(query).should.equal('(NOT ice)')
+    str(query).should.equal('(NOT "ice")')
+
+
+def test_query_with_complex_filters():
+    # When I combine complex queries
+    query = ~Query('cone') | Query('cream') & Query('ice')
+
+    # Then I see that the value gives expected logical precedence
+    str(query).should.equal('((NOT "cone") OR ("cream" AND "ice"))')
+
+
+def test_query_with_invalid_lookup():
+    # When I attempt a query with an invalid lookup
+    # Then I see that it raises an exception
+    Query.when.called_with(pub_date__invalid=3).should.throw(
+        ParsingException,
+        "This is not a valid lookup argument."
+        "The valid lookups are: lte")
+
+
+def test_query_with_lte_lookup():
+    # When I send an lte lookup for a datetime
+    query = Query(pub_date__lte=datetime(2013, 3, 13, 1, 32))
+
+    # Then I see that the field is specified from * till the str value
+    # inclusive ([])
+    str(query).should.equal('pub_date:([* TO "2013-03-13T01:32:00"])')
+
+
+def test_query_with_gte_lookup():
+    # When I filter a gte lookup for a string
+    query = Query(text__gte='cr')
+
+    # Then I see that the field is specified from str value till *,
+    # inclusive ([])
+    str(query).should.equal('text:(["cr" TO *])')
+
+
+def test_query_with_lt_lookup():
+    # When I filter an lt look up for a string
+    query = Query(text__lt='cr')
+
+    # Then I see that the field is specified from str value till *,
+    # exclusive ({})
+    str(query).should.equal('text:({* TO "cr"})')
+
+
+def test_query_with_gt_lookup():
+    # When I filter an gt look up for a string
+    query = Query(pub_date__gt=datetime(2013, 3, 13, 1, 32))
+
+    # Then I see that the field is specified from str value till *,
+    # exclusive ({})
+    str(query).should.equal('pub_date:({"2013-03-13T01:32:00" TO *})')
+
+
+def test_query_with_in_lookup_list():
+    # When I filter an in look up for list
+    query = Query(title__in=["The quick brown fox", 'The lazy dog'])
+
+    # Then I see that the field queried over a reduced value of the list
+    # with the OR operator
+    str(query).should.equal('title:("The quick brown fox" OR "The lazy dog")')
+
+
+def test_query_with_in_lookup_set():
+    # When I filter an in look up for set
+    query = Query(title__in=set(["The quick brown fox", 'The lazy dog']))
+
+    # Then I see that the field queried over a reduced value of the set
+    # with the OR operator
+    str(query).should.equal('title:("The quick brown fox" OR "The lazy dog")')
+
+
+def test_query_with_in_lookup_list_datetime():
+    # When I filter an in look up for list with datetimes
+    query = Query(pub_date__in=[datetime(2013, 3, 13, 1, 32), datetime(2013, 3, 14, 1, 0)])
+
+    # Then I see the field queried over a reduced values of the list of datetimes converted to strings
+    str(query).should.equal('pub_date:("2013-03-13T01:32:00" OR "2013-03-14T01:00:00")')
+
+
+def test_query_with_range_lookup():
+    # When I filter an range look up for list with datetimes
+    query = Query(pub_date__range=[datetime(2013, 3, 13, 1, 32), datetime(2013, 3, 14, 1, 0)])
+
+    # Then I see the field queried over a reduced values of the list of datetimes converted to strings
+    str(query).should.equal('pub_date:("2013-03-13T01:32:00" TO "2013-03-14T01:00:00")')
