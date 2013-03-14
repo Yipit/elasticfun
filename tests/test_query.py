@@ -112,3 +112,11 @@ def test_query_add_boost():
     # Then I see that the query contains both, the field and the query
     # boosting
     str(query).should.equal('stuff field^3')
+
+
+def test_query_with_not():
+    # When I filter by one word and add the not ~ character
+    query = ~Query('ice')
+
+    # Then I see that the value is prepended with a NOT
+    str(query).should.equal('(NOT ice)')

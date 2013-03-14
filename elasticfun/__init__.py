@@ -73,6 +73,12 @@ class Query(object):
         self._empty = False
         return self
 
+    def __invert__(self):
+        if not self._empty:
+            self._cache = '(NOT {})'.format(self)
+        self._evaluated = True
+        return self
+
     def _cast(self, val):
         if isinstance(val, datetime):
             return val.isoformat()
