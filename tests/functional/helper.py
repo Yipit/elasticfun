@@ -5,7 +5,10 @@ conn = pyelasticsearch.ElasticSearch('http://localhost:9200')
 
 
 def flush(index_name):
-    conn.delete_index('test_{}'.format(index_name))
+    try:
+        conn.delete_index('test_{}'.format(index_name))
+    except pyelasticsearch.ElasticHttpNotFoundError:
+        pass
 
 
 def refresh(index_name):
