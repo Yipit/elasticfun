@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
@@ -6,6 +5,7 @@ import operator
 from datetime import datetime
 
 LOOKUPS = ['lte', 'gte', 'lt', 'gt', 'in', 'range', 'startswith', 'endswith']
+
 LOOKUP_OPS = {'in': 'OR', 'range': 'TO'}
 
 
@@ -18,6 +18,12 @@ class Query(object):
 
         # Reading the special parameters
         self.boost = kwargs.pop('_boost', None)
+
+        # Attributes that controls the beginning of a chain. Users were
+        # not supposed to change them manually. Please refer to the
+        # `Query.empty()` constructor.
+        self._empty = kwargs.pop('_empty', False)
+        self._cache = None
 
         # After cleaning up the kwargs we'll have just the plain field
         # declaration
@@ -51,16 +57,9 @@ class Query(object):
         if field:
             self.field, self.lookup, self.query = self._process_field(field)
 
-        # Attributes that controls the beginning of a chain
-        self._empty = False
-        self._evaluated = False
-        self._cache = None
-
     @staticmethod
     def empty():
-        query = Query()
-        query._empty = True
-        return query
+        return Query(_empty=True)
 
     @staticmethod
     def from_user_input(user_input='', default_op='AND'):
@@ -70,14 +69,13 @@ class Query(object):
         return query
 
     def __str__(self):
-        return self._cache if self._evaluated else self._eval()
+        return self._cache or self._eval()
 
     def __and__(self, other):
         if self._empty:
             self._cache = str(other)
         else:
             self._cache = '({} AND {})'.format(self, other)
-        self._evaluated = True
         self._empty = False
         return self
 
@@ -86,18 +84,15 @@ class Query(object):
             self._cache = str(other)
         else:
             self._cache = '({} OR {})'.format(self, other)
-        self._evaluated = True
         self._empty = False
         return self
 
     def __invert__(self):
         if not self._empty:
             self._cache = '(NOT {})'.format(self)
-        self._evaluated = True
         return self
 
     def _process_field(self, field):
-
         field, val = field.items()[0]
         lookup = None
         if '__' in field:
@@ -127,7 +122,6 @@ class Query(object):
         return '"{}"'.format(str(val))
 
     def _process_lookup(self, lookup, value):
-
         if lookup == 'lte':
             value = '[* TO {}]'.format(value)
         elif lookup == 'gte':

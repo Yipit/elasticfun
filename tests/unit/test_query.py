@@ -1,4 +1,3 @@
-import sure
 from datetime import datetime
 from elasticfun import Query, ParsingException
 
@@ -85,6 +84,24 @@ def test_query_with_or():
 
     # Then I see that the right query was created
     str(query).should.equal('("ice" OR "cream")')
+
+
+def test_empty_query_with_and():
+    # When I filter by an empty query and by another word with the AND
+    # operator
+    query = Query.empty() & Query('cream')
+
+    # Then I see that the query was created without extra operators
+    str(query).should.equal('"cream"')
+
+
+def test_empty_query_with_or():
+    # When I filter by an empty query and by another word with the OR
+    # operator
+    query = Query.empty() | Query('cream')
+
+    # Then I see that the query was created without extra operators
+    str(query).should.equal('"cream"')
 
 
 def test_query_with_two_words():
