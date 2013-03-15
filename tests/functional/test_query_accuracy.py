@@ -1,3 +1,14 @@
+"""Functional test suite for the query object
+
+In this module we ensure that the generated keys aren't only
+sintatically right, but that they also return the right values when used
+to query elastic search.
+
+Notice that we're sorting the results of some tests manually cause the
+retrieved values have the same score, so elasticsearch won't guarantee
+the sort order.
+"""
+
 from sure import expect
 
 from . import helper
@@ -5,22 +16,22 @@ from . import helper
 from elasticfun import Query
 
 
-# def test_query_all():
-#     # Given that we have a list of indexed documents saved on an empty
-#     # elasticsearch instance
-#     helper.flush('default')
-#     helper.index('default', 'person', {"name": "Joe Tester"})
-#     helper.index('default', 'person', {"name": "Jessica Coder"})
-#     helper.refresh('default')
+def test_query_all():
+    # Given that we have a list of indexed documents saved on an empty
+    # elasticsearch instance
+    helper.flush('default')
+    helper.index('default', 'person', {"name": "Joe Tester"})
+    helper.index('default', 'person', {"name": "Jessica Coder"})
+    helper.refresh('default')
 
-#     # When I search for Joe
-#     results = helper.search(Query())
+    # When I search for everything.
+    results = helper.search(Query(), sort_func=lambda x: x['name'])
 
-#     # Then I see that the results matched our expectation
-#     results.should.equal([
-#         {"name": "Joe Tester"},
-#         {"name": "Jessica Coder"}
-#     ])
+    # Then I see that the results matched our expectation.
+    results.should.equal([
+        {"name": "Jessica Coder"},
+        {"name": "Joe Tester"},
+    ])
 
 
 def test_query_single_word_no_results():
@@ -215,12 +226,15 @@ def test_query_with_or_across_fields():
     helper.refresh('default')
 
     # When I search for Joe or worker
-    results = helper.search(Query('joe') | Query('Worker'))
+    results = helper.search(
+        Query('joe') | Query('Worker'),
+        sort_func=lambda x: x['name'],
+    )
 
     # Then I see that the results matched our expectation
     expect(results).to.equal([
         {"name": "Jessica Coder", 'sibling': "Lincoln Worker"},
-        {"name": "Joe Tester", 'sibling': "Jessica Noncoder"}
+        {"name": "Joe Tester", 'sibling': "Jessica Noncoder"},
     ])
 
 
@@ -357,12 +371,15 @@ def test_query_with_field_two_words_or():
     helper.refresh('default')
 
     # When I search for jessica coder
-    results = helper.search(Query(name=(Query('jessica') | Query('joe'))))
+    results = helper.search(
+        Query(name=(Query('jessica') | Query('joe'))),
+        sort_func=lambda x: x['name'],
+    )
 
     # Then I see that the results matched our expectation
     expect(results).to.equal([
+        {"name": "Jessica Coder", 'sibling': "Lincoln Worker"},
         {"name": "Joe Tester", 'sibling': "Jessica Noncoder"},
-        {"name": "Jessica Coder", 'sibling': "Lincoln Worker"}
     ])
 
 
@@ -419,12 +436,15 @@ def test_query_with_or_two_fields():
     helper.refresh('default')
 
     # When I search for jessica coder
-    results = helper.search(Query(name='jessica') | Query(sibling='jessica'))
+    results = helper.search(
+        Query(name='jessica') | Query(sibling='jessica'),
+        sort_func=lambda x: x['name'],
+    )
 
     # Then I see that the results matched our expectation
     expect(results).to.equal([
+        {"name": "Jessica Coder", 'sibling': "Lincoln Worker"},
         {"name": "Joe Tester", 'sibling': "Jessica Noncoder"},
-        {"name": "Jessica Coder", 'sibling': "Lincoln Worker"}
     ])
 
 
@@ -463,12 +483,16 @@ def test_query_with_complex_and_or_not():
     helper.refresh('default')
 
     # When I search for query with no jessica
-    results = helper.search(~Query('Emily') & Query(name='joe') | Query(sibling='worker'))
+    results = helper.search(
+        ~Query('Emily') & Query(name='joe') | Query(sibling='worker'),
+        sort_func=lambda x: x['name'],
+    )
 
     # Then I see that the results matched our expectation
     expect(results).to.equal([
+        {"name": "Emily Author", 'sibling': "Tim Worker"},
+        {"name": "Jessica Coder", 'sibling': "Lincoln Worker"},
         {"name": "Joe Tester", 'sibling': "Jessica Noncoder"},
-        {"name": "Jessica Coder", 'sibling': "Lincoln Worker"}
     ])
 
 # Missing tests for boost and lookups
