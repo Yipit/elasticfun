@@ -213,18 +213,30 @@ def test_query_with_in_lookup_set():
 
 def test_query_with_in_lookup_list_datetime():
     # When I filter an in look up for list with datetimes
-    query = Query(pub_date__in=[datetime(2013, 3, 13, 1, 32), datetime(2013, 3, 14, 1, 0)])
+    query = Query(
+        pub_date__in=[
+            datetime(2013, 3, 13, 1, 32),
+            datetime(2013, 3, 14, 1, 0)
+        ])
 
-    # Then I see the field queried over a reduced values of the list of datetimes converted to strings
-    str(query).should.equal('pub_date:("2013-03-13T01:32:00" OR "2013-03-14T01:00:00")')
+    # Then I see the field queried over a reduced values of the list of
+    # datetimes converted to strings
+    str(query).should.equal(
+        'pub_date:("2013-03-13T01:32:00" OR "2013-03-14T01:00:00")')
 
 
 def test_query_with_range_lookup():
     # When I filter an range look up for list with datetimes
-    query = Query(pub_date__range=[datetime(2013, 3, 13, 1, 32), datetime(2013, 3, 14, 1, 0)])
+    query = Query(
+        pub_date__range=[
+            datetime(2013, 3, 13, 1, 32),
+            datetime(2013, 3, 14, 1, 0)
+        ])
 
-    # Then I see the field queried over a reduced values of the list of datetimes converted to strings
-    str(query).should.equal('pub_date:("2013-03-13T01:32:00" TO "2013-03-14T01:00:00")')
+    # Then I see the field queried over a reduced values of the list of
+    # datetimes converted to strings
+    str(query).should.equal(
+        'pub_date:("2013-03-13T01:32:00" TO "2013-03-14T01:00:00")')
 
 
 def test_query_with_startswith_lookup():
