@@ -96,7 +96,7 @@ def test_query_with_two_words():
     str(query).should.equal('"ice cream"')
 
 
-def test_query_with_field_and():
+def test_query_with_field_two_words():
     # When I filter by field with more than one value
     query = Query(brand='ice cream')
 
