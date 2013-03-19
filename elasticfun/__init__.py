@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+import operator
 from datetime import datetime
 
 LOOKUPS = ['lte', 'gte', 'lt', 'gt', 'in', 'range', 'startswith', 'endswith']
@@ -58,6 +60,13 @@ class Query(object):
     def empty():
         query = Query()
         query._empty = True
+        return query
+
+    @staticmethod
+    def from_user_input(user_input='', default_op='AND'):
+        user_input = [Query(token) for token in user_input.split(' ')]
+        op = operator.and_ if default_op == 'AND' else operator.or_
+        query = reduce(op, user_input)
         return query
 
     def __str__(self):
