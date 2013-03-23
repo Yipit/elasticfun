@@ -2,5 +2,6 @@ coverage==3.6
 nose==1.2.1
 sure==1.1.7
 mock==1.0.1
+steadymark==0.4.5
 pyelasticsearch==0.3
 Django==1.5

@@ -88,8 +88,7 @@ class Query(object):
         return self
 
     def __invert__(self):
-        if not self._empty:
-            self._cache = '(NOT {})'.format(self)
+        self._cache = '(NOT {})'.format(self)
         return self
 
     def _process_field(self, field):

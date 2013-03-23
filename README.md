@@ -60,7 +60,7 @@ builder object is to receive user input e.g. from a search box.
 
 ```python
 >>> from elasticfun import Query
->>> Query.from_user_input('ice cream')
+>>> str(Query.from_user_input('ice cream'))
 '("ice" AND "cream")'
 ```
 
@@ -69,7 +69,7 @@ get a result like this:
 
 ```python
 >>> from elasticfun import Query
->>> Query.from_user_input('ice scream', default_operator='OR')
+>>> str(Query.from_user_input('ice cream', default_op='OR'))
 '("ice" OR "cream")'
 ```
 

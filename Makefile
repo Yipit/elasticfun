@@ -1,5 +1,7 @@
 test:
-	nosetests --stop --with-coverage --cover-package=elasticfun --verbosity=2 -s tests
+	nosetests --stop --with-coverage --cover-package=elasticfun \
+		--cover-branches --verbosity=2 -s tests && \
+	steadymark
 
 deps:
 	pip install -r requirements.txt
