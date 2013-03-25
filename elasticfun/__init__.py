@@ -57,13 +57,13 @@ class Query(object):
         if field:
             self.field, self.lookup, self.query = self._process_field(field)
 
-    @staticmethod
-    def empty():
-        return Query(_empty=True)
+    @classmethod
+    def empty(cls):
+        return cls(_empty=True)
 
-    @staticmethod
-    def from_user_input(user_input='', default_op='AND'):
-        user_input = [Query(token) for token in user_input.split(' ')]
+    @classmethod
+    def from_user_input(cls, user_input='', default_op='AND'):
+        user_input = [cls(token) for token in user_input.split(' ')]
         op = operator.and_ if default_op == 'AND' else operator.or_
         query = reduce(op, user_input)
         return query
