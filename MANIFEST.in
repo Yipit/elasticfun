@@ -1,0 +1,4 @@
+recursive-exclude tests *
+include README.md
+include COPYING
+include Makefile
