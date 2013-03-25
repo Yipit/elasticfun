@@ -20,13 +20,13 @@ if __name__ == '__main__':
     setup(
         name="elasticfun",
         license="GPL",
-        version='0.0.1',
+        version='0.0.2',
         description=u'ElasticSearch Query functionality using Django',
         long_description=open('README.md').read(),
         author=u'Lincoln de Sousa, Nitya Oberoi',
         author_email=u'lincoln@yipit.com, nitya@yipit.com',
         url='https://github.com/Yipit/elasticfun',
-        include_package_data=True,
+        packages=find_packages(),
         classifiers=(
             'Development Status :: 3 - Alpha',
             'Framework :: Django',
