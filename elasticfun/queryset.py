@@ -48,7 +48,7 @@ class QuerySet(object):
         self.wrappers.append(wrapper)
         return self
 
-    def items(self):
+    def items(self, clean=True):
         if self.raw_results is None:
             raise EmptyQuerySetException(
                 'This QuerySet object is empty. Make sure a search has '
@@ -79,5 +79,8 @@ class QuerySet(object):
             for hit in wrapped_hits:
                 index = _order_dict[wrapper.get_key(hit)]
                 processed_results[index] = hit
+
+        if clean:
+            processed_results = filter(lambda val: val is not None, processed_results)
 
         return processed_results

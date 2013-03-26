@@ -246,13 +246,57 @@ def test_get_items_ordered_results():
     queryset.raw_results = {'hits': {'hits': [hit1, hit2, hit3]}}
 
     wrapper = Wrapper()
-    wrapper.wrap = lambda obj: obj
+    wrapper.wrap = lambda objs: objs
     wrapper.match = lambda obj: obj['_type'] == 'type1'
 
     wrapper2 = Wrapper()
-    wrapper2.wrap = lambda obj: obj
+    wrapper2.wrap = lambda objs: objs
     wrapper2.match = lambda obj: obj['_type'] == 'type2'
 
     results = queryset.wrap(wrapper).wrap(wrapper2).items()
 
     results.should.equal([hit1, hit2, hit3])
+
+
+def test_get_items_default_clean():
+
+    # Given that we have a well configured queryset object
+    connections = {
+        'default': {'URL': 'http://localhost:9200'}}
+    conf = Mock(connections=connections, indexes=connections.keys())
+    queryset = QuerySet(conf=conf)
+
+    hit1 = {'_type': 'type1', '_id': 'some_id', 'value': 'hit1'}
+    hit2 = {'_type': 'type1', '_id': 'last_id', 'value': 'hit2'}
+
+    queryset.raw_results = {'hits': {'hits': [hit1, hit2]}}
+
+    wrapper = Wrapper()
+    wrapper.wrap = lambda objs: [objs[0]]
+    wrapper.match = lambda obj: obj['_type'] == 'type1'
+
+    results = queryset.wrap(wrapper).items()
+
+    results.should.equal([hit1])
+
+
+def test_get_items_false_clean():
+
+ # Given that we have a well configured queryset object
+    connections = {
+        'default': {'URL': 'http://localhost:9200'}}
+    conf = Mock(connections=connections, indexes=connections.keys())
+    queryset = QuerySet(conf=conf)
+
+    hit1 = {'_type': 'type1', '_id': 'some_id', 'value': 'hit1'}
+    hit2 = {'_type': 'type1', '_id': 'last_id', 'value': 'hit2'}
+
+    queryset.raw_results = {'hits': {'hits': [hit1, hit2]}}
+
+    wrapper = Wrapper()
+    wrapper.wrap = lambda objs: [objs[0]]
+    wrapper.match = lambda obj: obj['_type'] == 'type1'
+
+    results = queryset.wrap(wrapper).items(clean=False)
+
+    results.should.equal([hit1, None])
