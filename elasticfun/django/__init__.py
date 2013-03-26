@@ -1,11 +1,11 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import pyelasticsearch
+from __future__ import unicode_literals
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
-from .. import Query
-
-__all__ = 'elasticfun',
+from ..queryset import QuerySet as ElasticFunQuerySet
 
 
 class ConfManager(object):
@@ -15,26 +15,18 @@ class ConfManager(object):
 
     @property
     def indexes(self):
-        return settings.ELASTICFUN_CONNECTIONS.keys()
+        return self.connections.keys()
 
 
-class ElasticFun(object):
+class QuerySet(ElasticFunQuerySet):
 
-    conf = ConfManager()
+    def __init__(self, conf=None):
+        conf = conf or ConfManager()
+        super(QuerySet, self).__init__(conf=conf)
 
-    def search(self, query, index='default'):
-        # Looking up the index
-        if index not in self.conf.indexes:
-            raise ImproperlyConfigured((
-                "There's no index called `{}`, the available ones are: {}. "
-                "Check the ELASTICFUN_CONNECTIONS variable in your settings "
-                "file."
-            ).format(index, ', '.join(self.conf.indexes)))
-
-        # Calling the backend search method
-        esurl = self.conf.connections[index]['URL']
-        esinst = pyelasticsearch.ElasticSearch(esurl)
-        query = isinstance(query, Query) and str(query) or query
-        return esinst.search(query, index=index)
-
-elasticfun = ElasticFun()
+    def raise_improperly_configured(self, index=None):
+        raise ImproperlyConfigured((
+            "There's no index called `{}`, the available ones are: {}. "
+            "Check the ELASTICFUN_CONNECTIONS variable in your settings "
+            "file."
+        ).format(index, ', '.join(self.conf.indexes)))
