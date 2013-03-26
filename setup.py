@@ -20,7 +20,7 @@ if __name__ == '__main__':
     setup(
         name="elasticfun",
         license="GPL",
-        version='0.0.2',
+        version='0.1.0',
         description=u'ElasticSearch Query functionality using Django',
         long_description=open('README.md').read(),
         author=u'Lincoln de Sousa, Nitya Oberoi',
