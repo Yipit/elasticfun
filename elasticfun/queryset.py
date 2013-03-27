@@ -21,7 +21,6 @@ class QuerySet(object):
                     )
 
         self.conf = conf
-        self.esinst = None
         self.raw_results = None
         self.wrappers = []
 
