@@ -61,6 +61,7 @@ class Query(object):
 
     @classmethod
     def from_user_input(cls, user_input='', default_op='AND'):
+        user_input = user_input.strip()
         user_input = [cls(token) for token in user_input.split(' ')]
         op = operator.and_ if default_op == 'AND' else operator.or_
         query = reduce(op, user_input)

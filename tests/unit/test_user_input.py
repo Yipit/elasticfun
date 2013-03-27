@@ -17,6 +17,12 @@ def test_user_input_simple():
     str(query).should.equal('"simple"')
 
 
+def test_user_input_with_spaces_around_it():
+    query = Query.from_user_input(' simple ')
+
+    str(query).should.equal('"simple"')
+
+
 def test_user_input_two_words_and():
     query = Query.from_user_input('ice cream', default_op='AND')
 
