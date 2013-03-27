@@ -231,6 +231,31 @@ def test_get_items_after_wrap_with_more_wrappers():
     wrapper2.wrap.assert_called_once_with(['hit2'])
 
 
+def test_get_items_no_wrap_match_excludes_hit():
+
+    # Given that we have a well configured queryset object
+    connections = {
+        'default': {'URL': 'http://localhost:9200'}}
+    conf = Mock(connections=connections, indexes=connections.keys())
+    queryset = QuerySet(conf=conf)
+
+    hit1 = {'_type': 'type1', '_id': 'some_id', 'value': 'hit1'}
+    hit2 = {'_type': 'type2', '_id': 'another_id', 'value': 'hit2'}
+    queryset.raw_results = {'hits': {'hits': [hit1, hit2]}}
+
+    wrapper = Wrapper()
+    wrapper.wrap = lambda objs: objs
+    wrapper.match = lambda obj: obj['_type'] == 'type1'
+
+    wrapper2 = Wrapper()
+    wrapper2.wrap = lambda objs: objs
+    wrapper2.match = lambda obj: False
+
+    results = queryset.wrap(wrapper).wrap(wrapper2).items()
+
+    results.should.equal([hit1])
+
+
 def test_get_items_ordered_results():
 
     # Given that we have a well configured queryset object
