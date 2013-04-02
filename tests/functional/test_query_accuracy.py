@@ -9,7 +9,7 @@ retrieved values have the same score, so elasticsearch won't guarantee
 the sort order.
 """
 
-from sure import expect
+import sure  # noqa
 
 from . import helper
 
@@ -207,7 +207,7 @@ def test_query_with_or_all_words_crossfield():
     # Then I see that the results matched our expectations
     # This is the only result since all are single values
     # enclosed within quotes
-    expect(results).to.equal([
+    results.should.equal([
         {"name": "Jessica Coder", 'sibling': "Lincoln Worker"},
         {"name": "Joe Tester", 'sibling': "Jessica Noncoder"}
     ])
@@ -232,7 +232,7 @@ def test_query_with_or_across_fields():
     )
 
     # Then I see that the results matched our expectation
-    expect(results).to.equal([
+    results.should.equal([
         {"name": "Jessica Coder", 'sibling': "Lincoln Worker"},
         {"name": "Joe Tester", 'sibling': "Jessica Noncoder"},
     ])
@@ -377,7 +377,7 @@ def test_query_with_field_two_words_or():
     )
 
     # Then I see that the results matched our expectation
-    expect(results).to.equal([
+    results.should.equal([
         {"name": "Jessica Coder", 'sibling': "Lincoln Worker"},
         {"name": "Joe Tester", 'sibling': "Jessica Noncoder"},
     ])
@@ -418,7 +418,7 @@ def test_query_with_and_two_fields():
     results = helper.search(Query(name='jessica') & Query(sibling='lincoln'))
 
     # Then I see that the results matched our expectation
-    expect(results).to.equal([
+    results.should.equal([
         {"name": "Jessica Coder", 'sibling': "Lincoln Worker"}
     ])
 
@@ -442,7 +442,7 @@ def test_query_with_or_two_fields():
     )
 
     # Then I see that the results matched our expectation
-    expect(results).to.equal([
+    results.should.equal([
         {"name": "Jessica Coder", 'sibling': "Lincoln Worker"},
         {"name": "Joe Tester", 'sibling': "Jessica Noncoder"},
     ])
@@ -489,7 +489,7 @@ def test_query_with_complex_and_or_not():
     )
 
     # Then I see that the results matched our expectation
-    expect(results).to.equal([
+    results.should.equal([
         {"name": "Emily Author", 'sibling': "Tim Worker"},
         {"name": "Jessica Coder", 'sibling': "Lincoln Worker"},
         {"name": "Joe Tester", 'sibling': "Jessica Noncoder"},
