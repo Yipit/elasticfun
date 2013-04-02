@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from .exceptions import (
+from .exceptions import (  # noqa
     ConfigMissingException,
     ImproperlyConfigured,
     ParsingException,
     EmptyQuerySetException
 )
-from .query import Query
-from .queryset import QuerySet
-from .wrappers import Wrapper
+from .query import Query  # noqa
+from .queryset import QuerySet  # noqa
+from .wrappers import Wrapper  # noqa
 
 
 __all__ = (
