@@ -13,5 +13,5 @@ clean:
 	rm -rf .coverage
 
 publish:
-	# NOTE: remember to change the version on setup.py before publishing
+	@# NOTE: remember to change the version on setup.py before publishing
 	@python setup.py sdist upload
