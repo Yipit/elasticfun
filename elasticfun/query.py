@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import re
 import operator
 from datetime import datetime
 
@@ -12,6 +13,9 @@ LOOKUP_OPS = {'in': 'OR', 'range': 'TO'}
 
 
 class Query(object):
+
+    re_spaces = re.compile(r'\s+')
+
     def __init__(self, query=None, **kwargs):
 
         # Reading the special parameters
@@ -62,7 +66,7 @@ class Query(object):
     @classmethod
     def from_user_input(cls, user_input='', default_op='AND'):
         user_input = user_input.strip()
-        user_input = [cls(token) for token in user_input.split(' ')]
+        user_input = [cls(token) for token in cls.re_spaces.split(user_input)]
         op = operator.and_ if default_op == 'AND' else operator.or_
         query = reduce(op, user_input)
         return query
