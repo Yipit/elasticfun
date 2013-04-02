@@ -7,7 +7,8 @@ conn = pyelasticsearch.ElasticSearch('http://localhost:9200')
 def flush(index_name):
     try:
         conn.delete_index('test_{}'.format(index_name))
-    except pyelasticsearch.ElasticHttpNotFoundError:
+    except (pyelasticsearch.ElasticHttpNotFoundError,
+        pyelasticsearch.ConnectionError):
         pass
 
 
