@@ -77,12 +77,34 @@ def test_query_with_and():
     str(query).should.equal('("ice" AND "cream")')
 
 
+def test_query_with_iand():
+    # When I filter by one word
+    query = Query('ice')
+
+    # And I use the iand operator with another filter
+    query &= Query('cream')
+
+    # Then I see that the right query was created with the AND operator
+    str(query).should.equal('("ice" AND "cream")')
+
+
 def test_query_with_or():
     # When I filter by one word and then by another word with the OR
     # operator
     query = Query('ice') | Query('cream')
 
-    # Then I see that the right query was created
+    # Then I see that the right query was created with the OR operator
+    str(query).should.equal('("ice" OR "cream")')
+
+
+def test_query_with_ior():
+    # When I filter by one word and then by another word
+    query = Query('ice')
+
+    # And I use the ior operator with another filter
+    query |= Query('cream')
+
+    # Then I see that the right query was created with the OR operator
     str(query).should.equal('("ice" OR "cream")')
 
 
