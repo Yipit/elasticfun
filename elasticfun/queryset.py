@@ -29,7 +29,13 @@ class QuerySet(object):
             "There's no index called `{}`, the available ones are: {}."
         ).format(index, ', '.join(self.conf.indexes)))
 
-    def search(self, query, index='default'):
+    def search(self, query, index='default', **kwargs):
+        """
+        kwargs supported are the parameters listed at:
+            http://www.elasticsearch.org/guide/reference/api/search/request-body/
+        Namely: timeout, from, size and search_type.
+        IMPORTANT: prepend ALL keys with "es_" as pyelasticsearch requires this
+        """
         # Looking up the index
         if index not in self.conf.indexes:
             self.raise_improperly_configured(index=index)
@@ -39,7 +45,7 @@ class QuerySet(object):
         esinst = pyelasticsearch.ElasticSearch(esurl)
 
         query = isinstance(query, Query) and str(query) or query
-        self.raw_results = esinst.search(query, index=index)
+        self.raw_results = esinst.search(query, index=index, **kwargs)
 
         return self
 
