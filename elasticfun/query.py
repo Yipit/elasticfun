@@ -1,8 +1,10 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import re
 import operator
+import re
+import six
 from datetime import datetime
 
 from .exceptions import ParsingException
@@ -71,12 +73,15 @@ class Query(object):
         query = reduce(op, user_input)
         return query
 
-    def __str__(self):
+    def __unicode__(self):
         return self._cache or self._eval()
+
+    def __str__(self):
+        return self.__unicode__().encode('utf-8')
 
     def __and__(self, other):
         if self._empty:
-            self._cache = str(other)
+            self._cache = six.u(other)
         else:
             self._cache = '({} AND {})'.format(self, other)
         self._empty = False
@@ -84,7 +89,7 @@ class Query(object):
 
     def __or__(self, other):
         if self._empty:
-            self._cache = str(other)
+            self._cache = six.u(other)
         else:
             self._cache = '({} OR {})'.format(self, other)
         self._empty = False
@@ -114,14 +119,14 @@ class Query(object):
             op = ' {} '.format(lookup and LOOKUP_OPS.get(lookup) or 'OR')
             return op.join(map(self._cast, val))
         if isinstance(val, Query):
-            return str(val)
+            return six.u(val)
 
         if lookup == 'startswith':
             val = '{}*'.format(val)
         elif lookup == 'endswith':
             val = '*{}'.format(val)
 
-        return '"{}"'.format(str(val))
+        return '"{}"'.format(val)
 
     def _process_lookup(self, lookup, value):
         if lookup == 'lte':

@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from datetime import datetime
 from elasticfun import Query, ParsingException
 
@@ -58,6 +61,13 @@ def test_query_single_boolean_value():
 
     # Then I see that the right query was created
     str(query).should.equal('"True"')
+
+
+def test_query_unicode_value():
+    query = Query('Ưedding')
+
+    # Then I see that the right query was created
+    str(query).should.equal('"Ưedding"')
 
 
 def test_query_single_datetime_value():
