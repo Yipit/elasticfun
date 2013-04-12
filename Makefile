@@ -22,7 +22,7 @@ run_test:
 		echo "Running \033[0;32m$(suite)\033[0m test suite"; \
 		make prepare; \
 		nosetests --stop --with-coverage --cover-package=$(PACKAGE) \
-			--cover-branches --verbosity=2 -s tests/$(suite) ; \
+			--cover-branches --verbosity=2 -s tests/$(suite); \
 	fi
 
 steadymark:
@@ -42,8 +42,9 @@ build_test_stub:
 	@find ./build -name '*.so' -exec mv {} tests/unit \;
 
 clean:
-	find . -name '*.pyc' -delete
-	rm -rf .coverage *.egg-info *.log build dist
+	@find . -name '*.pyc' -delete
+	@python setup.py clean
+	@rm -rf .coverage dist *.log
 
 publish:
 	@# NOTE: remember to change the version on setup.py before publishing
