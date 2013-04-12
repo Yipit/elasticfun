@@ -44,7 +44,7 @@ build_test_stub:
 clean:
 	@find . -name '*.pyc' -delete
 	@python setup.py clean
-	@rm -rf .coverage dist *.log
+	@rm -rf .coverage dist *.egg-info *.log
 
 publish:
 	@# NOTE: remember to change the version on setup.py before publishing
