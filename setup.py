@@ -27,7 +27,7 @@ def parse_requirements():
     """
     try:
         requirements = \
-            map(str.strip, local_file('requirements.txt').split('\n'))
+            map(str.strip, local_file('requirements.txt'))
     except IOError:
         raise RuntimeError("Couldn't find the `requirements.txt' file :(")
 
@@ -46,12 +46,12 @@ def parse_requirements():
     return pkgs, links
 
 local_file = lambda f: \
-    open(os.path.join(os.path.dirname(__file__), f)).read()
-
-install_requires, dependency_links = parse_requirements()
+    open(os.path.join(os.path.dirname(__file__), f)).readlines()
 
 
 if __name__ == '__main__':
+    install_requires, dependency_links = parse_requirements()
+
     setup(
         name="elasticfun",
         license="GPL",
