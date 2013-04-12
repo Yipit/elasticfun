@@ -1,3 +1,12 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+import sure  # noqa
+
+from . import helper
+from elasticfun import Query
+
 """Functional test suite for the query object
 
 In this module we ensure that the generated keys aren't only
@@ -8,12 +17,6 @@ Notice that we're sorting the results of some tests manually cause the
 retrieved values have the same score, so elasticsearch won't guarantee
 the sort order.
 """
-
-import sure  # noqa
-
-from . import helper
-
-from elasticfun import Query
 
 
 def test_query_all():
@@ -62,6 +65,21 @@ def test_query_single_word():
 
     # Then I see that the results matched our expectation
     results.should.equal([{"name": "Joe Tester"}])
+
+
+def test_query_unicode_word():
+    # Given that we have a list of indexed documents saved on an empty
+    # elasticsearch instance
+    helper.flush('default')
+    helper.index('default', 'person', {"name": "Joe Ưedding"})
+    helper.index('default', 'person', {"name": "Jessica Coder"})
+    helper.refresh('default')
+
+    # When I search for Joe
+    results = helper.search(Query('Ưedding'))
+
+    # Then I see that the results matched our expectation
+    results.should.equal([{"name": "Joe Ưedding"}])
 
 
 def test_query_single_field_no_results():
