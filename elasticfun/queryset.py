@@ -4,6 +4,7 @@ from __future__ import unicode_literals, absolute_import
 
 from collections import defaultdict
 import pyelasticsearch
+from six import text_type
 
 from .exceptions import (
     ImproperlyConfigured,
@@ -45,7 +46,7 @@ class QuerySet(object):
         esurl = self.conf.connections[index]['URL']
         esinst = pyelasticsearch.ElasticSearch(esurl)
 
-        query = isinstance(query, Query) and str(query) or query
+        query = isinstance(query, Query) and text_type(query) or query
         self.raw_results = esinst.search(query, index=index, **kwargs)
 
         return self
