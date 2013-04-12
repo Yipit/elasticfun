@@ -4,8 +4,9 @@ from __future__ import unicode_literals, absolute_import
 
 import operator
 import re
-import six
+from six import text_type
 from datetime import datetime
+from functools import reduce
 
 from .compat import UnicodeMixin
 from .exceptions import ParsingException
@@ -44,7 +45,7 @@ class Query(UnicodeMixin):
         if query and field:
             msg = (
                 "You cannot use both words and fields in the same call. "
-                "You should do something like this: qb('{}') & {}"
+                "Instead, you can do something like this: qb('{}') & {}"
             ).format(query, fields_str)
             raise ParsingException(msg)
 
@@ -52,8 +53,8 @@ class Query(UnicodeMixin):
         # object we also raise an exception
         if len(field) > 1:
             msg = (
-                "You cannot use more than one field the same call. "
-                "You should do something like this: {}"
+                "You cannot use more than one field in the same call. "
+                "Instead, you can do something like this: {}"
             ).format(fields_str)
             raise ParsingException(msg)
 
@@ -79,7 +80,7 @@ class Query(UnicodeMixin):
 
     def __and__(self, other):
         if self._empty:
-            self._cache = six.text_type(other)
+            self._cache = text_type(other)
         else:
             self._cache = '({} AND {})'.format(self, other)
         self._empty = False
@@ -87,7 +88,7 @@ class Query(UnicodeMixin):
 
     def __or__(self, other):
         if self._empty:
-            self._cache = six.text_type(other)
+            self._cache = text_type(other)
         else:
             self._cache = '({} OR {})'.format(self, other)
         self._empty = False
@@ -98,7 +99,7 @@ class Query(UnicodeMixin):
         return self
 
     def _process_field(self, field):
-        field, val = field.items()[0]
+        field, val = list(field.items())[0]
         lookup = None
         if '__' in field:
             field, lookup = field.rsplit('__', 1)
@@ -117,7 +118,7 @@ class Query(UnicodeMixin):
             op = ' {} '.format(lookup and LOOKUP_OPS.get(lookup) or 'OR')
             return op.join(map(self._cast, val))
         if isinstance(val, Query):
-            return six.text_type(val)
+            return text_type(val)
 
         if lookup == 'startswith':
             val = '{}*'.format(val)

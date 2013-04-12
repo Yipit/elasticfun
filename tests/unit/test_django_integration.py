@@ -18,7 +18,7 @@ def test_connection_settings(settings):
     # Then I see that it matches exactly what we have in the settings
     # file
     conf.connections.should.equal(settings.ELASTICFUN_CONNECTIONS)
-    conf.indexes.should.equal(['default', 'other_connection'])
+    set(conf.indexes).should.equal({'default', 'other_connection'})
 
 
 def test_django_search_against_an_invalid_index():

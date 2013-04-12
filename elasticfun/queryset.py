@@ -80,13 +80,13 @@ class QuerySet(object):
         # what objects did not get wrapped correctly due to database / ES
         # index inconsistencies
         processed_results = [None] * len(hits)
-        for wrapper, typed_results in _type_dict.iteritems():
+        for wrapper, typed_results in _type_dict.items():
             wrapped_hits = wrapper.wrap(typed_results)
             for hit in wrapped_hits:
                 index = _order_dict[wrapper.get_key(hit)]
                 processed_results[index] = hit
 
         if clean:
-            processed_results = filter(lambda val: val is not None, processed_results)
+            processed_results = list(filter(lambda val: val is not None, processed_results))
 
         return processed_results

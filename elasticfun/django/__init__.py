@@ -15,7 +15,7 @@ class ConfManager(object):
 
     @property
     def indexes(self):
-        return self.connections.keys()
+        return list(self.connections.keys())
 
 
 class QuerySet(ElasticFunQuerySet):
