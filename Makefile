@@ -34,7 +34,6 @@ install_deps:
 	@if [ -z $$SKIP_DEPS ]; then \
 		echo "Installing missing dependencies..."; \
 		[ -e requirements.txt ] && pip install -r requirements.txt &> .build.log; \
-		[ -e development.txt  ] && pip install -r development.txt  &> .build.log; \
 	fi
 
 build_test_stub:
