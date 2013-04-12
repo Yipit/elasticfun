@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import
 
 import operator
 import re
 import six
 from datetime import datetime
 
+from .compat import UnicodeMixin
 from .exceptions import ParsingException
 
 LOOKUPS = ['lte', 'gte', 'lt', 'gt', 'in', 'range', 'startswith', 'endswith']
@@ -14,7 +15,7 @@ LOOKUPS = ['lte', 'gte', 'lt', 'gt', 'in', 'range', 'startswith', 'endswith']
 LOOKUP_OPS = {'in': 'OR', 'range': 'TO'}
 
 
-class Query(object):
+class Query(UnicodeMixin):
 
     re_spaces = re.compile(r'\s+')
 
@@ -76,12 +77,9 @@ class Query(object):
     def __unicode__(self):
         return self._cache or self._eval()
 
-    def __str__(self):
-        return self.__unicode__().encode('utf-8')
-
     def __and__(self, other):
         if self._empty:
-            self._cache = six.u(other)
+            self._cache = six.text_type(other)
         else:
             self._cache = '({} AND {})'.format(self, other)
         self._empty = False
@@ -89,7 +87,7 @@ class Query(object):
 
     def __or__(self, other):
         if self._empty:
-            self._cache = six.u(other)
+            self._cache = six.text_type(other)
         else:
             self._cache = '({} OR {})'.format(self, other)
         self._empty = False
@@ -119,7 +117,7 @@ class Query(object):
             op = ' {} '.format(lookup and LOOKUP_OPS.get(lookup) or 'OR')
             return op.join(map(self._cast, val))
         if isinstance(val, Query):
-            return six.u(val)
+            return six.text_type(val)
 
         if lookup == 'startswith':
             val = '{}*'.format(val)
