@@ -9,7 +9,7 @@ PACKAGE=elasticfun
 CUSTOM_PIP_INDEX=
 # </variables>
 
-all: unit functional steadymark
+all: unit functional integration acceptance steadymark
 
 unit:
 	@make run_test suite=unit
@@ -17,34 +17,57 @@ unit:
 functional:
 	@make run_test suite=functional
 
-run_test:
-	@if [ -d tests/$(suite) ]; then \
-		echo "Running \033[0;32m$(suite)\033[0m test suite"; \
-		make prepare; \
-		nosetests --stop --with-coverage --cover-package=$(PACKAGE) \
-			--cover-branches --verbosity=2 -s tests/$(suite); \
+integration:
+	@make run_test suite=integration
+
+acceptance:
+	@if hash lettuce 2>/dev/null; then \
+		lettuce; \
 	fi
 
 steadymark:
-	@hash steadymark &> /dev/null && steadymark; echo  # This echo tells the shell that everything worked
-
-prepare: clean install_deps build_test_stub
-
-install_deps:
-	@if [ -z $$SKIP_DEPS ]; then \
-		echo "Installing missing dependencies..."; \
-		[ -e requirements.txt ] && pip install -r requirements.txt &> .build.log; \
+	@if hash steadymark 2>/dev/null; then \
+		steadymark; \
 	fi
 
-build_test_stub:
-	@python setup.py build
-	@find ./build -name '*.so' -exec mv {} tests/unit \;
+prepare: clean install_deps
+
+run_test:
+	@if [ -d tests/$(suite) ]; then \
+		echo "Running \033[0;32m$(suite)\033[0m test suite"; \
+		make prepare && \
+			nosetests --stop --with-coverage --cover-package=$(PACKAGE) \
+				--cover-branches --verbosity=2 -s tests/$(suite) ; \
+	fi
+
+install_deps:
+	@if [ -z $$VIRTUAL_ENV ]; then \
+		echo "You're not running this from a virtualenv, wtf dude?"; \
+		exit 1; \
+	fi
+
+	@if [ -z $$SKIP_DEPS ]; then \
+		echo "Installing missing dependencies..."; \
+		[ -e development.txt  ] && pip install -r development.txt; \
+	fi
+
+	@python setup.py develop &> .build.log
 
 clean:
+	@echo "Removing garbage..."
 	@find . -name '*.pyc' -delete
-	@python setup.py clean
-	@rm -rf .coverage dist/ build/ *.egg-info/ *.log
+	@find . -name '*.so' -delete
+	@find . -name __pycache__ -delete
+	@rm -rf .coverage *.egg-info *.log build dist MANIFEST
 
 publish:
-	@# NOTE: remember to change the version on setup.py before publishing
-	@python setup.py sdist upload
+	@if [ -e "$$HOME/.pypirc" ]; then \
+		echo "Uploading to '$(CUSTOM_PIP_INDEX)'"; \
+		python setup.py register -r "$(CUSTOM_PIP_INDEX)"; \
+		python setup.py sdist upload -r "$(CUSTOM_PIP_INDEX)"; \
+	else \
+		echo "You should create a file called \`.pypirc' under your home dir.\n"; \
+		echo "That's the right place to configure \`pypi' repos.\n"; \
+		echo "Read more about it here: https://github.com/Yipit/yipit/blob/dev/docs/rfc/RFC00007-python-packages.md"; \
+		exit 1; \
+	fi

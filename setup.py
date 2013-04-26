@@ -48,9 +48,9 @@ def parse_requirements():
 local_file = lambda f: \
     open(os.path.join(os.path.dirname(__file__), f)).readlines()
 
+install_requires, dependency_links = parse_requirements()
 
 if __name__ == '__main__':
-    install_requires, dependency_links = parse_requirements()
 
     setup(
         name="elasticfun",
@@ -61,7 +61,7 @@ if __name__ == '__main__':
         author=u'Lincoln de Sousa, Nitya Oberoi',
         author_email=u'lincoln@yipit.com, nitya@yipit.com',
         url='https://github.com/Yipit/elasticfun',
-        packages=find_packages(),
+        packages=find_packages(exclude=['*tests*']),
         install_requires=install_requires,
         dependency_links=dependency_links,
         classifiers=(
