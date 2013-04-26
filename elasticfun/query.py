@@ -112,6 +112,8 @@ class Query(UnicodeMixin):
         return field, lookup, val
 
     def _cast(self, val, lookup=None):
+        if isinstance(val, bool):
+            return '"{}"'.format(text_type(val).lower())
         if isinstance(val, datetime):
             return '"{}"'.format(val.isoformat())
         if isinstance(val, (list, set)):
