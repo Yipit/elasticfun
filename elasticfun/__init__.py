@@ -15,7 +15,7 @@ from .wrappers import Wrapper  # noqa
 
 __all__ = (
     'ConfigMissingException',
-    'EmptyQuerySetException'
+    'EmptyQuerySetException',
     'ImproperlyConfigured',
     'ParsingException',
     'Query',

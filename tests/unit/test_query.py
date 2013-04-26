@@ -29,23 +29,18 @@ def test_mixing_words_and_fields():
     Query.when.called_with('stuff', field='val').should.throw(
         ParsingException,
         "You cannot use both words and fields in the same call. "
-        "Instead, you can do something like this: qb('stuff') & qb(field='val')")
+        "Instead, you can do something like this: "
+        "qb('stuff') & qb(field='val')")
 
 
 def test_passing_more_than_one_field():
-    # We know this test readability is bad but
-    # we cant rely on the kwargs dict keys being
-    # on the order defined by the function calls
-    try:
-        Query(field1='a', field2='b')
-    except ParsingException as e:
-        # When I try to filter with more than one field in the same object,
-        # Than I see that it actually raised an exception
-        msg = str(e)
-        msg.should.match(r"^You cannot use more than one field in the same call. "
-        r"Instead, you can do something like this: qb\(field[12]='[ab]'\) & qb\(field[12]='[ab]'\)$")
-        msg.should.contain("field1='a'")
-        msg.should.contain("field2='b'")
+    # We know this test readability is bad but we cant rely on the kwargs dict
+    # keys being on the order defined by the function calls
+    Query.when.called_with(field1='a', field2='b').should.throw(
+        ParsingException,
+        "You cannot use more than one field in the same call. "
+        "Instead, you can do something like this: "
+        "qb(field2='b') & qb(field1='a')")
 
 
 def test_query_single_word():
@@ -257,7 +252,8 @@ def test_query_with_in_lookup_list():
 
     # Then I see that the field queried over a reduced value of the list
     # with the OR operator
-    text_type(query).should.equal('title:("The quick brown fox" OR "The lazy dog")')
+    text_type(query).should.equal(
+        'title:("The quick brown fox" OR "The lazy dog")')
 
 
 def test_query_with_in_lookup_set():
