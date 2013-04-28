@@ -63,6 +63,8 @@ def test_query_single_boolean_value():
     # When I filter by a boolean value, Then I see that the right query was
     # created
     text_type(Query(True)).should.equal('"true"')
+    text_type(Query(param=True)).should.equal('param:"true"')
+    text_type(Query(False)).should.equal('"false"')
     text_type(Query(blah=False)).should.equal('blah:"false"')
 
 

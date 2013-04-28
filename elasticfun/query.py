@@ -150,7 +150,9 @@ class Query(UnicodeMixin):
             return ''
 
         # No specific query was received, let's return everything
-        if not self.field and not self.query:
+        if not self.field and \
+                not self.query and \
+                not isinstance(self.query, bool):
             return '*:*'
 
         # Start out with a blank field, and the query specified
