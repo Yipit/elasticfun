@@ -82,4 +82,4 @@ that the coverage won't decrease at all.
 
 Also, I strongly suggest you to start your proposed feature or bug fix
 by writing the tests. It will certainly decrease the complexity of the
-actual and thus improve it's quality.
+actual code and thus improve it's quality.
