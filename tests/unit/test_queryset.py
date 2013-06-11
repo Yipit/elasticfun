@@ -128,6 +128,32 @@ def test_searching_with_dicts(pyelasticsearch):
         query, index='default')
 
 
+def test_queryset_count_without_searching_before():
+    connections = {
+        'default': {'URL': 'http://localhost:9200'}}
+    conf = Mock(connections=connections, indexes=connections.keys())
+    queryset = QuerySet(conf=conf)
+
+    # when the queryset.count() method is called
+    # without first calling search should return 0
+    queryset.count().should.equal(0)
+
+
+@patch('elasticfun.queryset.pyelasticsearch')
+def test_queryset_count(pyelasticsearch):
+    connections = {
+        'default': {'URL': 'http://localhost:9200'}}
+    conf = Mock(connections=connections, indexes=connections.keys())
+
+    pyelasticsearch.ElasticSearch.return_value.search.return_value = {'hits': {'total': 44}}
+    queryset = QuerySet(conf=conf)
+    queryset.search('something')
+
+    # when the queryset.count() method is called
+    # without first calling search should return 0
+    queryset.count().should.equal(44)
+
+
 def test_queryset_wrap():
     connections = {
         'default': {'URL': 'http://localhost:9200'}}
