@@ -10,7 +10,7 @@ from elasticfun import Query
 """Functional test suite for the query object
 
 In this module we ensure that the generated keys aren't only
-sintatically right, but that they also return the right values when used
+syntactically correct, but that they also return the right values when used
 to query elastic search.
 
 Notice that we're sorting the results of some tests manually cause the
