@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from mock import patch, Mock
 
 from elasticfun import (

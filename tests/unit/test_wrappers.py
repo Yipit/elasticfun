@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from elasticfun import Wrapper
 
 

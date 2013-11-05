@@ -1,7 +1,4 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sure  # noqa
-
 from elasticfun import Query
 
 
