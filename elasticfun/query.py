@@ -110,6 +110,14 @@ class Query(UnicodeMixin):
                 raise ParsingException(msg)
         return field, lookup, val
 
+    def _escape(self, s):
+        r = []
+        for c in text_type(s):
+            if c in '+-&|!(){}[]^"~*?:\\':
+                r.append('\\')
+            r.append(c)
+        return ''.join(r)
+
     def _cast(self, val, lookup=None):
         if isinstance(val, bool):
             return '"{}"'.format(text_type(val).lower())
@@ -120,6 +128,8 @@ class Query(UnicodeMixin):
             return op.join(map(self._cast, val))
         if isinstance(val, Query):
             return text_type(val)
+
+        val = self._escape(val)
 
         if lookup == 'startswith':
             val = '{}*'.format(val)

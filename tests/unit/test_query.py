@@ -21,6 +21,21 @@ def test_empty_query():
     # Then I see that this query object won't return anything just yet
     querystr.should.be.empty
 
+def test_escape_query():
+    """query() Should escape sequences defined in the lucene documentation
+
+    http://lucene.apache.org/core/3_4_0/queryparsersyntax.html#Escaping%20Special%20Characters
+    """
+
+    # Given the following characters
+    special_chars = '+-&|!(){}[]^"~*?:\\'
+
+    # When I query by the above sequence
+    query = text_type(Query(special_chars))
+
+    # Then I see that everything was escaped properly
+    query.should.equal('"\+\-\&\|\!\(\)\{\}\[\]\^\\\"\~\*\?\:\\\\"')
+
 
 def test_mixing_words_and_fields():
     # When I try to filter by both words and fields in the same object,
