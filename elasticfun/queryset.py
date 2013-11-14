@@ -54,6 +54,11 @@ class QuerySet(object):
             return 0
         return self.raw_results['hits']['total']
 
+    def max_score(self):
+        if not self.raw_results:
+            return 0
+        return self.raw_results['hits']['max_score']
+
     def wrap(self, wrapper):
         self.wrappers.append(wrapper)
         return self

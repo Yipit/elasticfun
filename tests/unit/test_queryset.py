@@ -155,6 +155,32 @@ def test_queryset_count(pyelasticsearch):
     queryset.count().should.equal(44)
 
 
+def test_queryset_max_score_without_searching_before():
+    connections = {
+        'default': {'URL': 'http://localhost:9200'}}
+    conf = Mock(connections=connections, indexes=connections.keys())
+    queryset = QuerySet(conf=conf)
+
+    # when the queryset.max_score() method is called
+    # without first calling search should return 0
+    queryset.max_score().should.equal(0)
+
+
+@patch('elasticfun.queryset.pyelasticsearch')
+def test_queryset_max_score(pyelasticsearch):
+    connections = {
+        'default': {'URL': 'http://localhost:9200'}}
+    conf = Mock(connections=connections, indexes=connections.keys())
+
+    pyelasticsearch.ElasticSearch.return_value.search.return_value = {'hits': {'max_score': 18.31415}}
+    queryset = QuerySet(conf=conf)
+    queryset.search('something')
+
+    # when the queryset.max_score() method is called
+    # without first calling search should return 0
+    queryset.max_score().should.equal(18.31415)
+
+
 def test_queryset_wrap():
     connections = {
         'default': {'URL': 'http://localhost:9200'}}
